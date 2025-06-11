@@ -10,11 +10,65 @@ function App() {
   const [userExperience, setUserExperience] = useState("");
   const [userDescription, setUserDescription] = useState("");
 
-  // funzione di submit del form
+  const [userNameError, setUserNameError] = useState("");
+  const [userPasswordError, setUserPasswordError] = useState("");
+  const [userDescriptionError, setUserDescriptionError] = useState("");
+
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "0123456789";
+  const symbols = "!@#$%^&*()-_=+[]{}|;:'\\\",.<>?/`~";
+
+  // Validazione username in tempo reale
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    setUserName(value);
+
+    const valid = /^[a-zA-Z0-9]{6,}$/.test(value);
+    if (!valid) {
+      setUserNameError("Username non valido: solo lettere e numeri, minimo 6 caratteri.");
+    } else {
+      setUserNameError("Username valido.");
+    }
+  };
+
+  // Validazione password in tempo reale
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setUserPassword(value);
+
+    let hasLetter = false;
+    let hasNumber = false;
+    let hasSymbol = false;
+
+    for (let char of value) {
+      if (letters.includes(char.toLowerCase())) hasLetter = true;
+      if (numbers.includes(char)) hasNumber = true;
+      if (symbols.includes(char)) hasSymbol = true;
+    }
+
+    if (value.length >= 8 && hasLetter && hasNumber && hasSymbol) {
+      setUserPasswordError("Password valida.");
+    } else {
+      setUserPasswordError("Password non valida: min. 8 caratteri, 1 lettera, 1 numero, 1 simbolo.");
+    }
+  };
+
+  // Validazione descrizione in tempo reale
+  const handleDescriptionChange = (e) => {
+    const value = e.target.value;
+    setUserDescription(value);
+
+    const trimmed = value.trim();
+    if (trimmed.length >= 100 && trimmed.length <= 1000) {
+      setUserDescriptionError("Descrizione valida.");
+    } else {
+      setUserDescriptionError("La descrizione deve essere tra 100 e 1000 caratteri.");
+    }
+  };
+
   const submit = (e) => {
     e.preventDefault();
 
-    // controllo che tutti i campi siano compilati
     if (
       !fullName ||
       !userName ||
@@ -27,20 +81,17 @@ function App() {
       return;
     }
 
-    // controllo che l'esperienza sia un numero positivo
     const experienceNumber = parseFloat(userExperience);
     if (isNaN(experienceNumber) || experienceNumber <= 0) {
       alert("Inserisci un numero positivo per gli anni di esperienza.");
       return;
     }
 
-    // controllo che sia stata selezionata una specializzazione
     if (userSpecialization === "") {
       alert("Seleziona una specializzazione valida.");
       return;
     }
 
-    // stampa dei dati
     console.log("I tuoi dati sono stati inviati", {
       fullName,
       userName,
@@ -50,6 +101,7 @@ function App() {
       userDescription,
     });
   };
+
 
   return (
     <div className="container">
@@ -70,8 +122,11 @@ function App() {
           <input
             type="text"
             value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            onChange={handleUsernameChange}
           />
+          <p className={userNameError.includes("non valido") ? "error" : "success"}>
+            {userNameError}
+          </p>
         </div>
 
         <div>
@@ -79,8 +134,11 @@ function App() {
           <input
             type="password"
             value={userPassword}
-            onChange={(e) => setUserPassword(e.target.value)}
+            onChange={handlePasswordChange}
           />
+          <p className={userPasswordError.includes("non valida") ? "error" : "success"}>
+            {userPasswordError}
+          </p>
         </div>
 
         <div>
@@ -109,8 +167,12 @@ function App() {
           <label>Descrizione</label>
           <textarea
             value={userDescription}
-            onChange={(e) => setUserDescription(e.target.value)}
+            onChange={handleDescriptionChange}
+
           />
+          <p className={userDescriptionError.includes("valida") ? "success" : "error"}>
+            {userDescriptionError}
+          </p>
         </div>
 
         <button type="submit">Registrati</button>
