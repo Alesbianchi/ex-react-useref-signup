@@ -1,37 +1,36 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './App.css';
 
 function App() {
-  // stato per ogni campo
-  const [fullName, setFullName] = useState("");
+  // campi CONTROLLATI
   const [userName, setUserName] = useState("");
   const [userPassword, setUserPassword] = useState("");
-  const [userSpecialization, setUserSpecialization] = useState("");
-  const [userExperience, setUserExperience] = useState("");
   const [userDescription, setUserDescription] = useState("");
 
   const [userNameError, setUserNameError] = useState("");
   const [userPasswordError, setUserPasswordError] = useState("");
   const [userDescriptionError, setUserDescriptionError] = useState("");
 
+  // campi NON CONTROLLATI
+  const fullNameRef = useRef();
+  const specializationRef = useRef();
+  const experienceRef = useRef();
+
   const letters = "abcdefghijklmnopqrstuvwxyz";
   const numbers = "0123456789";
   const symbols = "!@#$%^&*()-_=+[]{}|;:'\\\",.<>?/`~";
 
-  // Validazione username in tempo reale
+  // VALIDAZIONI in tempo reale
   const handleUsernameChange = (e) => {
     const value = e.target.value;
     setUserName(value);
 
     const valid = /^[a-zA-Z0-9]{6,}$/.test(value);
-    if (!valid) {
-      setUserNameError("Username non valido: solo lettere e numeri, minimo 6 caratteri.");
-    } else {
-      setUserNameError("Username valido.");
-    }
+    setUserNameError(valid
+      ? "Username valido."
+      : "Username non valido: solo lettere e numeri, minimo 6 caratteri.");
   };
 
-  // Validazione password in tempo reale
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setUserPassword(value);
@@ -53,21 +52,23 @@ function App() {
     }
   };
 
-  // Validazione descrizione in tempo reale
   const handleDescriptionChange = (e) => {
     const value = e.target.value;
     setUserDescription(value);
 
     const trimmed = value.trim();
-    if (trimmed.length >= 100 && trimmed.length <= 1000) {
-      setUserDescriptionError("Descrizione valida.");
-    } else {
-      setUserDescriptionError("La descrizione deve essere tra 100 e 1000 caratteri.");
-    }
+    setUserDescriptionError(trimmed.length >= 100 && trimmed.length <= 1000
+      ? "Descrizione valida."
+      : "La descrizione deve essere tra 100 e 1000 caratteri.");
   };
 
   const submit = (e) => {
     e.preventDefault();
+
+    const fullName = fullNameRef.current.value.trim();
+    const userSpecialization = specializationRef.current.value;
+    const userExperience = experienceRef.current.value.trim();
+    const experienceNumber = parseFloat(userExperience);
 
     if (
       !fullName ||
@@ -81,7 +82,6 @@ function App() {
       return;
     }
 
-    const experienceNumber = parseFloat(userExperience);
     if (isNaN(experienceNumber) || experienceNumber <= 0) {
       alert("Inserisci un numero positivo per gli anni di esperienza.");
       return;
@@ -102,7 +102,6 @@ function App() {
     });
   };
 
-
   return (
     <div className="container">
       <h1>Form di Registrazione</h1>
@@ -110,20 +109,12 @@ function App() {
       <form onSubmit={submit}>
         <div>
           <label>Nome completo</label>
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
+          <input type="text" ref={fullNameRef} />
         </div>
 
         <div>
           <label>Username</label>
-          <input
-            type="text"
-            value={userName}
-            onChange={handleUsernameChange}
-          />
+          <input type="text" value={userName} onChange={handleUsernameChange} />
           <p className={userNameError.includes("non valido") ? "error" : "success"}>
             {userNameError}
           </p>
@@ -131,11 +122,7 @@ function App() {
 
         <div>
           <label>Password</label>
-          <input
-            type="password"
-            value={userPassword}
-            onChange={handlePasswordChange}
-          />
+          <input type="password" value={userPassword} onChange={handlePasswordChange} />
           <p className={userPasswordError.includes("non valida") ? "error" : "success"}>
             {userPasswordError}
           </p>
@@ -143,10 +130,7 @@ function App() {
 
         <div>
           <label>Specializzazione</label>
-          <select
-            value={userSpecialization}
-            onChange={(e) => setUserSpecialization(e.target.value)}
-          >
+          <select ref={specializationRef}>
             <option value="">-- Seleziona --</option>
             <option value="Full Stack">Full Stack</option>
             <option value="Frontend">Frontend</option>
@@ -156,20 +140,12 @@ function App() {
 
         <div>
           <label>Anni di esperienza</label>
-          <input
-            type="number"
-            value={userExperience}
-            onChange={(e) => setUserExperience(e.target.value)}
-          />
+          <input type="number" ref={experienceRef} />
         </div>
 
         <div>
           <label>Descrizione</label>
-          <textarea
-            value={userDescription}
-            onChange={handleDescriptionChange}
-
-          />
+          <textarea value={userDescription} onChange={handleDescriptionChange} />
           <p className={userDescriptionError.includes("valida") ? "success" : "error"}>
             {userDescriptionError}
           </p>
